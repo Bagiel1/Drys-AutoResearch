@@ -1,0 +1,9 @@
+# Ambiente Virtual
+venv/
+
+# Chaves de API e Variáveis de Ambiente
+.env
+
+# Cache e logs
+__pycache__/
+*.log
