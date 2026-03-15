@@ -50,7 +50,6 @@ O dashboard consolidado será gerado automaticamente no diretório:
 
 * `main.py`: Orquestrador da lógica de agentes e controlo de fluxo.
 * `samples/`: Exemplos de outputs gerados pelo sistema (ex: Análise da WEGE3).
-* `.gitignore`: Proteção de ambientes virtuais (venv) e chaves de API (.env).
 
 ---
 *Desenvolvido por Gabriel (Bagiel) – Estudante de Sistemas de Informação (ICMC-USP).*
