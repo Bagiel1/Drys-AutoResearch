@@ -15,7 +15,7 @@ O diferencial deste projeto é o loop de **Reflexão Crítica e Enriquecimento**
 3.  **Self-Healing (Agente de Resgate)**
     * Acionado sob veto, identifica as lacunas apontadas pelo Juiz e realiza uma pesquisa cirúrgica para corrigir o contexto.
 4.  **Deep Research (Enriquecimento de Dados)**
-    * Independentemente da aprovação inicial, o sistema identifica e responde a 2 perguntas extremamente específicas sobre o futuro do ativo (ex: projeções de CAPEX ou impactos de leilões específicos) para garantir profundidade analítica.
+    * Dependendo da aprovação inicial, o sistema identifica e responde a 2 perguntas extremamente específicas sobre o futuro do ativo (ex: projeções de CAPEX ou impactos de leilões específicos) para garantir profundidade analítica.
 5.  **Auditoria Sénior**
     * Consolida o output final, elimina contradições e emite o veredito assertivo (COMPRA, VENDA ou MANTER).
 
