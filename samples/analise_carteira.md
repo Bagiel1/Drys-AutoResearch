@@ -4,43 +4,52 @@
 
 | Ativo | Recomendação | Score | Risco |
 |-------|--------------|-------|-------|
-| WEGE3  | MANTER       | 6.5   | Médio   |
+| WEGE3  | Compra       | 8.5   | Médio   |
+| SUZB3  | Compra       | 8.5   | Médio   |
 
 
 ## Análise Detalhada: WEGE3
 
-## Contexto de Mercado (março/2026)
-- WEGE3 acumulou alta superior a 30% desde outubro/2025 e negocia entre R$46‑50, antecipando a retomada operacional e a entrada da nova fábrica de Betim (MG) no 2º semestre de 2026 (A Revista, 14/jan/2026).
-- Mesmo após o rali, a ação mantém P/L em patamar elevado (faixa alta dos 30x), acima da média histórica e dos pares globais, enquanto Itaú BBA e Santander alertam para menos gatilhos de curto prazo apesar da tese estrutural positiva (Seu Dinheiro, 11/mar/2026).
+### Análise das Últimas Notícias de WEGE3 (2026)
 
-## Destaques Recentes
-1. **Transição energética e BESS** – XP e BTG projetam WEG competitiva no primeiro leilão nacional de baterias em abril/2026, com contratos de 10 anos e queda do custo de lítio favorecendo o retorno, embora a competição chinesa siga como pressão (InfoMoney, 8/jan/2026).
-2. **1º semestre não linear** – BTG estima trimestre inicial fraco por bases altas no Brasil e câmbio, com aceleração apenas no 2º semestre quando novos projetos de transmissão/distribuição entram em operação; margens devem permanecer resilientes graças ao mix de produtos de ciclo longo (InfoMoney, 8/jan/2026).
-3. **Capacidade global** – Itaú BBA e Santander destacam backlog robusto em eletrificação nos EUA e expansão de capacidade norte-americana desde 2017, mas veem o papel lateralizado até que novos motores de crescimento entreguem resultados (Seu Dinheiro, 11/mar/2026).
-4. **Resultados 4T25/1T26** – Mesmo no trimestre considerado o mais fraco da década, WEG reportou EBITDA de R$2,29 bi e margem de 22,4%, sustentada por mix favorável e eficiência internacional; Itaú BBA manteve recomendação de compra (Valor Investe, 25/fev/2026).
-5. **Expansão industrial** – A planta de Betim (CAPEX de R$1,5 bi) pode adicionar ~9% de receita no 2º semestre e até 22% em 2027, com casas projetando preço-alvo próximo de R$60 ao fim de 2026 se o ramp-up for bem-sucedido (A Revista, 14/jan/2026).
+#### 1. Desempenho Geral
+Em 2026, a WEG (WEGE3) apresentou um desempenho notável, com uma valorização de mais de 30% nos primeiros meses do ano. Esse crescimento é impulsionado por fatores como:
+- Uma nova fábrica bilionária em operação.
+- Forte demanda por eletrificação, favorecendo o setor de infraestrutura global.
 
-## Diagnóstico Fundamental
-- **Crescimento estrutural** – Backlog global permanece sustentado por data centers, veículos elétricos e renováveis; capacidade de transformadores nos EUA/México já aumentou 70‑200% desde 2017, garantindo penetração no ciclo de investimentos norte-americano.
-- **Rentabilidade** – Receita recuou ~5% a/a no 4T, mas o ganho de mix elevou a margem operacional para 22,4%, provando disciplina em custo e pricing mesmo em cenário de volumes mais fracos.
-- **Valuation** – O múltiplo atual (P/L alto 30x) embute execução perfeita do pipeline e retorno rápido do CAPEX. Sem revisões de lucro no curto prazo, a assimetria de upside depende de novos contratos (BESS, M&A) ou de um movimento macro de “flight to quality”.
-- **Estrutura financeira** – Caixa líquido e geração de caixa robusta (CAPEX de R$800 mi no 4T) permitem financiar Betim e potenciais aquisições sem endividamento relevante, mantendo flexibilidade estratégica.
-- **Fluxo técnico** – Tendência de alta consolidada desde outubro/2025, acompanhada por volumes crescentes. Porém, qualquer frustração em 1S26 tende a gerar correção, pois os investidores já embutiram aceleração em 2S26.
+**[Fonte: A Revista](https://arevista.com.br/acoes/wege3-acelera-no-inicio-de-2026-sobe-mais-de-30-em-tres-meses-e-entra-no-radar-para-medio-e-longo-prazo/)**
 
-## Catalisadores 2026
-1. **Leilão de baterias (abril/26)** – Vitória em lotes relevantes confirmaria a tese de BESS como nova perna de crescimento e sustentaria múltiplos elevados.
-2. **Ramp-up de Betim e plantas norte-americanas** – Evidências mensais de ocupação e margens na nova capacidade são essenciais para justificar as projeções de receita adicional.
-3. **Aquisições ou joint ventures** – Histórico mostra que ~1/3 do crescimento veio de M&A; um novo movimento pode destravar sinergias em mercados maduros.
-4. **Cenário macro** – Qualquer estresse político doméstico pode direcionar fluxo para empresas “qualidade”, mas um real apreciado ou tarifas nos EUA corroem receitas externas.
+#### 2. Resultados Financeiros
+- **ROIC (Return on Invested Capital)**: 32%
+- **P/L (Preço/Lucro)**: 30,6x, indicando que o mercado está disposto a pagar 30,6 vezes o lucro por ação.
+- **ROE (Retorno sobre Patrimônio)**: 28%, sugerindo eficiência significativa na utilização do capital.
+  
+Essas métricas revelam que a WEG tem uma estrutura financeira sólida, com margens de lucro que superam as expectativas.
 
-## Veredito — **MANTER**
-A WEG combina fundamentos excepcionais, liderança em eletrificação e balanço impecável, mas o preço atual já antecipa ramp-up perfeito da nova capacidade e sucesso no leilão de baterias. Sem gatilhos imediatos para revisão de lucro em 1S26 e com o P/L no topo histórico, o risco de uma correção supera o potencial de ganho adicional no curto prazo. Assim, o investidor já posicionado deve **MANTER** e aguardar confirmação dos catalisadores ou uma janela de preço mais descontado para ampliar posição. Para novos aportes, é prudente esperar materialização de contratos ou ajustes de múltiplo — ainda não há sinais que sustentem uma postura agressiva de COMPRA nem deterioração suficiente para VENDA.
+**[Fonte: A Revista](https://arevista.com.br/acoes/wege3-weg-cresce-mantem-margem-alta-e-entra-em-2026-com-roic-de-32/)**
 
-## ANÁLISE DE RISCO
-- **Execução industrial** – Atrasos na planta de Betim ou na expansão nos EUA/México comprometeriam o crescimento embutido nas estimativas de receita.
-- **Competição em BESS e T&D** – Entrada agressiva de fabricantes chineses pode pressionar margens e reduzir a atratividade do leilão brasileiro.
-- **Sensibilidade cambial e tarifária** – Valorização do real ou barreiras comerciais nos EUA impactam a conversão de receitas e os spreads de exportação.
-- **Valuation comprimido** – Com múltiplos já elevados, qualquer desvio negativo de guidance (volume, margem, CAPEX) tende a provocar repricing abrupto.
+#### 3. Sentimentos do Mercado
+Os analistas mostram otimismo em relação ao papel da WEG, considerando que:
+- As tendências de eletrificação e infraestrutura estão indo na direção certa, impactando positivamente o crescimento a longo prazo.
+- Contudo, há um reconhecimento de que existem menos catalisadores de curto prazo para a valorização imediata das ações.
+
+**[Fonte: Seu Dinheiro](https://www.seudinheiro.com/2026/empresas/weg-wege3-crescimento-estrutural-sustenta-teses-de-longo-prazo-mas-acao-pode-ficar-de-lado-no-curto-lvgb/)**
+
+#### 4. Projeções Futuras
+Em resposta aos desafios enfrentados em 2025, os analistas ajustaram suas projeções para 2026:
+- **Receitas líquidas projetadas**: R$ 42,1 bilhões, com um crescimento de 3% em relação ao ano anterior.
+
+**[Fonte: Seu Dinheiro](https://www.seudinheiro.com/2026/empresas/weg-wege3-crescimento-estrutural-sustenta-teses-de-longo-prazo-mas-acao-pode-ficar-de-lado-no-curto-lvgb/)**
+
+### Veredito
+Diante do crescimento robusto, da estrutura financeira sólida e das projeções de receita, a recomendação é **COMPRA**. A WEG apresenta um potencial significativo de valorização, impulsionado por robustos fundamentos e uma posição estratégica no mercado.
+
+### ANÁLISE DE RISCO
+- **Incertezas do Mercado**: Mesmo que as tendências sejam positivas, a falta de catalisadores de curto prazo pode impactar a valorização das ações.
+- **Dependência de Setores Específicos**: A forte dependência do setor de eletrificação e infraestrutura pode expor a empresa a flutuações do mercado global.
+- **Concorrência**: A intensificação da concorrência no setor pode afetar as margens de lucro.
+
+Portanto, enquanto o panorama aponta para um cenário positivo, investidores devem estar cientes dos riscos inerentes ao mercado.
 
 
 ---

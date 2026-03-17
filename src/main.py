@@ -1,10 +1,21 @@
 import subprocess
 import time
 import os
+import shutil
 
-carteira= ["WEGE3", "SUZB3"]
+carteira= ["WEGE3","SUZB3"]
 
+tempo_descanso= 5
 maximo= 2
+
+def limpar_memoria_main():
+    path_memoria= os.path.expanduser("~/.openclaw/agents/main")
+
+    if os.path.exists(path_memoria):
+        shutil.rmtree(path_memoria, ignore_errors=True)
+
+        comando= ["openclaw", "agents", "add", "main"]
+        subprocess.run(comando, input="\n", text=True, capture_output="True")
 
 def executar_agente(mensagem, thinking_level='low'):
     comando = [
@@ -82,6 +93,7 @@ def juiz(resposta_anterior, ticker):
     return resposta_juiz
 
 def pesquisar_ativo(ticker):
+    limpar_memoria_main()
     print(f"------Iniciando a Pesquisa de {ticker}\n")
 
     mensagem= f"Analise as ultimas noticias de {ticker} de 2026, faça uma analise profunda sobre o ativo e de o veredito se a recomendação é comprar, vender ou segurar."
@@ -91,8 +103,8 @@ def pesquisar_ativo(ticker):
 
     for i in range(maximo):
 
-        time.sleep(20)
-        print("   [!] Resfriando a API por 20s...")
+        time.sleep(tempo_descanso)
+        print(f"   [!] Resfriando a API por {tempo_descanso}s...")
 
         resposta_simnao= juiz(resultado_acumulado, ticker)
         resposta_simnao = resposta_simnao.upper().replace("Ã", "A").replace(".", "").strip()
@@ -115,8 +127,8 @@ def pesquisar_ativo(ticker):
                 "Mantenha o restante do texto, mas garanta que o dado novo (P/L e ROE reais de 2025/2026) "
                 "substitua o dado antigo e errado. Seja preciso e não invente outros dados."
             )
-            time.sleep(20)
-            print("   [!] Resfriando a API por 20s...")
+            time.sleep(tempo_descanso)
+            print(f"   [!] Resfriando a API por {tempo_descanso}s...")
             res_resgate= executar_agente(msg_resgate, thinking_level="medium")
 
 
@@ -129,14 +141,15 @@ def pesquisar_ativo(ticker):
                 f"Busque DADOS NUMÉRICOS REAIS e ATUALIZADOS sobre {item} do ativo {ticker}. "
                 "Não responda com generalidades. Se for P/L, traga o número. Se for notícia, traga a data e o fato."
                 )
-                time.sleep(20)
-                print("   [!] Resfriando a API por 20s...")
+
+                time.sleep(tempo_descanso)
+                print(f"   [!] Resfriando a API por {tempo_descanso}s...")
                 res= executar_agente(mensagem, thinking_level="medium")
 
                 resultado_acumulado += f"\n\n## Info Adicional ({item}): \n{res.stdout}"
 
-    time.sleep(20)
-    print("   [!] Resfriando a API por 20s...")
+    time.sleep(tempo_descanso)
+    print(f"   [!] Resfriando a API por {tempo_descanso}s...")
     relatorio_final= auditor_relatorio(resultado_acumulado, ticker)
 
     return relatorio_final
