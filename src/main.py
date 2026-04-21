@@ -1,60 +1,116 @@
-import subprocess
 import time
 import os
-import shutil
+import requests
+from dotenv import load_dotenv
+import yfinance as yf
 
-carteira= ["WEGE3","SUZB3"]
+load_dotenv()
+gateway_token= os.getenv("GATEWAY_TOKEN")
 
-tempo_descanso= 5
+tempo_descanso= 2
 maximo= 2
 
-def limpar_memoria_main():
-    path_memoria= os.path.expanduser("~/.openclaw/agents/main")
+headers= {
+    "Authorization": f"Bearer {gateway_token}",
+    "Content-Type": "application/json"
+}
 
-    if os.path.exists(path_memoria):
-        shutil.rmtree(path_memoria, ignore_errors=True)
+def get_real_data(ticker):
+    ticker_yf= f"{ticker}.SA" if not ticker.endswith(".SA") else ticker
 
-        comando= ["openclaw", "agents", "add", "main"]
-        subprocess.run(comando, input="\n", text=True, capture_output="True")
+    try:
+        share= yf.Ticker(ticker_yf)
+        info= share.info
 
-def executar_agente(mensagem, thinking_level='low'):
-    comando = [
-        "openclaw", "agent",
-        "--agent", "main",
-        "--local",
-        "--thinking", thinking_level,
-        "--message", mensagem
-    ]
-    res = subprocess.run(comando, capture_output=True, text=True)
-    return res 
+        pl= info.get('trailingPE', 'N/A')
+        roe= info.get('returnOnEquity', 'N/A')
 
-def auditor_relatorio(relatorio, ticker):
-    print(f"   [!] Auditoria final iniciando para {ticker}...")
-    mensagem = (
-        f"Você é um auditor sênior de investimentos. Analise este relatório de {ticker}:\n\n"
-        f"{relatorio}\n\n"
-        "Sua tarefa: Reescreva o relatório corrigindo possíveis contradições, "
-        "organizando em tópicos claros (Markdown) e garantindo que o veredito "
-        "(Comprar/Vender/Segurar) esteja bem fundamentado. "
-        "Adicione uma seção final chamada 'ANÁLISE DE RISCO'."
-        "Seja extremamente assertivo. O veredito deve ser COMPRA, VENDA ou MANTER. Proibido 'monitorar'"
+        if isinstance(pl, float):
+            pl= f"{pl:.2f}"
+
+        if isinstance(roe, float):
+            roe_format= f"{roe * 100:.2f}%"
+        else:
+            roe_format= str(roe)
+
+        raw_data= f"OFICIAL DATA (YFINANCE) - P/L: {pl} | ROE: {roe_format}"
+        return raw_data
+
+    except Exception as e:
+        return f"OFICIAL DATA (YFINCANCE) - ERROR: {e}"
+
+def exec_agent_api(user_prompt, agent="main", system_prompt= None):
+    url= "http://127.0.0.1:18789/v1/chat/completions"
+    message= []
+
+    if system_prompt:
+        message.append({"role": "system", "content": system_prompt})
+
+    message.append({"role": "user", "content": user_prompt})
+
+    payload= {
+        "model": f"openclaw/{agent}",
+        "messages": message
+    }
+
+    answer= requests.post(url, headers= headers, json= payload)
+    data= answer.json()
+
+    if "choices" not in data:
+        print(f"[API ERROR]: {data}")
+        return "API ERROR"
+    
+    text_answer= data['choices'][0]['message']['content']
+    return text_answer
+
+
+def auditor_report(report, ticker):
+    print(f"   [!] Final audit for {ticker}...")
+    personality = (
+        "Você é um auditor sênior de investimentos implacável. "
+        "Você não tem medo de dar recomendações diretas. Você NUNCA fica em cima do muro."
     )
-    res = executar_agente(mensagem, thinking_level="medium")
-    return res.stdout
+    task = (
+        f"Analise este relatorio de {ticker}: \n\n{report}\n\n"
+        "Sua tarefa: Reescreva o relatório organizando em tópicos claros (Markdown).\n"
+        "ATENÇÃO: Corrija todas as contradições. Se houver informações divergentes entre "
+        "o texto original e a seção 'Adendo da Auditoria', os dados do Adendo são a "
+        "VERDADE ABSOLUTA e devem substituir os originais.\n"
+        "Não escreva a palavra 'Adendo' no texto final. Incorpore a correção naturalmente. "
+        "Adicione uma seção chamada 'ANÁLISE DE RISCOS'.\n\n"
+        "REGRA ABSOLUTA E INQUEBRÁVEL: A ÚLTIMA LINHA do seu texto DEVE ser "
+        "exclusivamente o veredito final no formato exato: '**Veredito: COMPRA**', '**Veredito: VENDA**' ou '**Veredito: MANTER**'. "
+        "Sem exceções."
+    )
 
-def extrair_metricas(relatorio, ticker):
-    mensagem = (
+    answer= exec_agent_api(
+        user_prompt= task, 
+        agent= "auditor",
+        system_prompt= personality
+    )
+
+    return answer
+
+
+def extract_metrics(report, ticker):
+    personality = (
+        "Você é um extrator de dados robótico. Você não inventa palavras."
+    )
+    task = (
         f"Baseado no relatório abaixo, extraia apenas três informações: "
-        f"1. Recomendação (Compra, Venda ou Neutro), "
+        f"1. Recomendação (Compra, Venda ou Manter), "
         f"2. Score de 0 a 10 (onde 0 é péssimo e 10 é excelente), "
         f"3. Nível de Risco (Baixo, Médio, Alto). "
-        f"Retorne no formato: Recomendação | Score | Risco. Exemplo: Compra | 8.5 | Médio\n\n"
-        f"Relatório: {relatorio}"
-        f"Nao escreva nada a mais que isso."
+        f"Retorne OBRIGATORIAMENTE no formato: Recomendação | Score | Risco. Exemplo: Compra | 8.5 | Médio\n\n"
+        f"Relatório: {report}\n\n"
+        f"Não escreva absolutamente nada a mais."
     )
-    res = executar_agente(mensagem)
-    return res.stdout.strip()
+    
+    metrics = exec_agent_api(user_prompt=task, agent="metrics", system_prompt=personality)
+    return metrics
 
+
+'''
 def extrair_perguntas(contexto, ticker):
     
     mensagem= (f"Analise o que já foi levantado sobre {ticker}: \n\n{contexto}\n\n"
@@ -70,122 +126,165 @@ def extrair_perguntas(contexto, ticker):
         if linha_limpa:
             perguntas.append(linha_limpa)
     return perguntas[:3]
+'''
 
-def juiz(resposta_anterior, ticker):
-    
-    mensagem = (
-        f"Analise criticamente este relatório de {ticker}: {resposta_anterior}\n\n"
-        "Critérios de Rejeição (Diga NAO caso ele se encaixe em 2 desses requisitos):"
-        "1. Não apresenta o P/L (Preço/Lucro) atualizado de 2025 ou 2026."
-        "2. Não menciona o ROE (Retorno sobre Patrimônio) da empresa."
-        "3. Não cita pelo menos uma notícia relevante dos últimos 30 dias."
-        "4. O texto é genérico e não cita números específicos de balanço.\n\n"
-        "5. Se o texto for apenas um resumo superficial sem esses dados técnicos, "
-        "responda apenas NAO. Se estiver completo com indicadores e notícias, responda apenas SIM."
-        "Justifique a resposta em uma linha abaixo bem sucintamente, no maximo 3 palavras."
-        "Exemplo:\n"
-        "NAO\n"
-        "Falta PL atualizado"
+def rescue_agent(report, ticker, reason, oficial_data):
+    personality = (
+        "Sua função é corrigir relatórios de seus colegas. "
+        "Você NUNCA reescreve textos completos e não inventa dados."
     )
-    resposta_juiz= executar_agente(mensagem, thinking_level="medium")
+    task = (
+        f"O relatório de {ticker} está com este erro: '{reason}'.\n\n"
+        f"DADOS OFICIAIS REAIS PARA USAR NA CORREÇÃO: {oficial_data}\n\n"
+        f"Relatório Atual: {report}\n\n"
+        "Sua missão: Escreva APENAS UM PARÁGRAFO contendo a informação exata para suprir essa falha, "
+        "USANDO SE NECESSÁRIO OS DADOS OFICIAIS FORNECIDOS ACIMA. "
+        "Se o dado oficial for N/A, diga que o indicador é N/A ou inexistente. "
+        "Não reescreva o relatório todo. Retorne OBRIGATORIAMENTE apenas a frase com a correção."
+    )
 
-    resposta_juiz= resposta_juiz.stdout.strip().upper()
-    return resposta_juiz
+    rescue_answer= exec_agent_api(user_prompt=task, agent="rescue", system_prompt=personality)
 
-def pesquisar_ativo(ticker):
-    limpar_memoria_main()
-    print(f"------Iniciando a Pesquisa de {ticker}\n")
-
-    mensagem= f"Analise as ultimas noticias de {ticker} de 2026, faça uma analise profunda sobre o ativo e de o veredito se a recomendação é comprar, vender ou segurar."
-    resultado_inicial= executar_agente(mensagem)
+    return rescue_answer    
     
-    resultado_acumulado= resultado_inicial.stdout
+def judge(report, ticker, oficial_data):
 
+    personality = (
+        "Você é um auditor de qualidade extremamente rígido e literal. "
+        "Você não avalia a qualidade da ação, apenas verifica se os dados estão corretos e presentes."
+    )
+    task = (
+        f"Analise este relatorio de {ticker}:\n\n{report}\n\n"
+        f"DADOS OFICIAIS REAIS PARA CONFERÊNCIA:\n{oficial_data}\n\n"
+        "Verifique se o relatório cumpre TODOS os 4 requisitos abaixo:\n"
+        "1. Contém o valor exato do P/L informados nos dados oficiais?\n"
+        "(Se o dado oficial for 'N/A', o texto DEVE dizer que é 'N/A', 'inexistente' ou 'negativo').\n"
+        "2. Contém o valor exato do ROE informados nos dados oficiais? (Mesma regra do 'N/A')\n"
+        "3. Cita pelo menos uma notícia, polêmica ou fato relevante?\n\n"
+        "4. Relatorio esta completo e coerente, sem redundância?\n\n"
+        "ATENÇÃO: Se houver uma seção chamada '### Adendo da Auditoria' no final do texto, "
+        "considere APENAS os dados do Adendo, pois eles corrigem o texto original.\n\n"
+        "REGRA DE DECISÃO:\n"
+        "- Se possuir os 4 itens corretos, responda apenas: SIM\n"
+        "- Se faltar QUALQUER UM ou estiver com o NÚMERO ERRADO, responda: NAO\n\n"
+        "Se responder NAO, justifique na linha de baixo (máximo 4 palavras) dizendo o que faltou ou o que está errado."
+    )
+
+    judge_answer= exec_agent_api(user_prompt=task, agent="judge", system_prompt=personality)
+
+    return judge_answer
+
+def rapporteur(ticker):
+    print(f"------Starting the search of {ticker}\n")
+
+    oficial_data= get_real_data(ticker)
+
+    personality= (
+        "Você é um relator de ativos financeiros. "
+        "Você é profissional e não inventa dados quando não os encontra. "
+        "Caso ocorra de não encontrar o dado, somente diga que não o achou. "
+    )
+    task= (
+        f"Analise as ultimas noticias de {ticker} de 2026, "
+        "faça uma analise profunda sobre o ativo, incluindo polêmicas, "
+        "fatores que possam prejudicar a segurança do investidor, e coisas positivas.\n"
+        f"DADOS OFICIAIS ABSOLUTOS: {oficial_data}\n\n"
+        "REGRA DE OURO PARA INDICADORES: Use os dados oficiais acima. "
+        "Se o P/L ou ROE oficial estiver como 'N/A', isso significa que a empresa dá prejuízo "
+        "ou o dado é matematicamente impossível. Nesse caso, NÃO tente procurar esse número na web. "
+        "Escreva expressamente no seu texto que o P/L ou ROE é 'N/A' ou 'Inexistente'."
+    )
+
+    inicial_answer= exec_agent_api(user_prompt=task, agent="rapporteur", system_prompt=personality)
+    
+    return inicial_answer
+
+
+def agent_union(ticker):
+    report= rapporteur(ticker)
+    oficial_data= get_real_data(ticker)
     for i in range(maximo):
 
+        print(f"   [!] Cooling API for {tempo_descanso}s...")
         time.sleep(tempo_descanso)
-        print(f"   [!] Resfriando a API por {tempo_descanso}s...")
+        
+        binary_answer= judge(report, ticker, oficial_data)
+        lines= [line.strip() for line in binary_answer.split("\n") if line.strip() != ""]
 
-        resposta_simnao= juiz(resultado_acumulado, ticker)
-        resposta_simnao = resposta_simnao.upper().replace("Ã", "A").replace(".", "").strip()
-        decisao= resposta_simnao.split('\n')[0]
+        if not lines:
+            lines= ["NAO", "IA NAO RETORNOU JUSTIFICATIVA."]
 
-        print(f"   -> Tentativa {i+1} de {maximo} para {ticker}... Juiz disse {decisao}")
-        if len(resposta_simnao.split('\n')) > 1:
-            motivo_juiz= resposta_simnao.split('\n')[1]
-            print(f"      [MOTIVO]: {resposta_simnao.split('\n')[1]}")
+        decision_raw= lines[0].upper().replace("Ã", "A").replace(".", "")
+        decision= "SIM" if "SIM" in decision_raw else "NAO"
 
-        if('SIM' in decisao):
-            print(f"   [+] Juiz aprovou o relatório de {ticker}!")
+        if len(lines) > 1:
+            judge_reason= lines[1]
+
+        print(f"   -> Attempt {i+1} of {maximo} for {ticker}... Judge said {decision}")
+
+        if('SIM' in decision):
+            print(f"   [+] Judge approved the report of {ticker}!")
             break
         
-        elif('NAO' in decisao):
-            msg_resgate = (
-                f"Você é um editor de dados. O relatório atual de {ticker} está com este erro: '{motivo_juiz}'.\n\n"
-                f"Relatório Atual: {resultado_acumulado}\n\n"
-                "Sua missão: REESCREVA o relatório acima corrigindo EXCLUSIVAMENTE os dados citados no erro. "
-                "Mantenha o restante do texto, mas garanta que o dado novo (P/L e ROE reais de 2025/2026) "
-                "substitua o dado antigo e errado. Seja preciso e não invente outros dados."
-            )
-            time.sleep(tempo_descanso)
-            print(f"   [!] Resfriando a API por {tempo_descanso}s...")
-            res_resgate= executar_agente(msg_resgate, thinking_level="medium")
+        elif('NAO' in decision):
+            print(f"      [Reason]: {judge_reason}")
+            answer_rescue= rescue_agent(report, ticker, judge_reason, oficial_data)
 
+            report= report + f"\n\n### Adendo da Auditoria:\n{answer_rescue}"
 
-            resultado_acumulado= res_resgate.stdout
-
-            lacunas= extrair_perguntas(resultado_acumulado, ticker)
-            for item in lacunas:
-                print(f"Mensagem sobre {item}\n")
-                mensagem= (
-                f"Busque DADOS NUMÉRICOS REAIS e ATUALIZADOS sobre {item} do ativo {ticker}. "
-                "Não responda com generalidades. Se for P/L, traga o número. Se for notícia, traga a data e o fato."
-                )
-
-                time.sleep(tempo_descanso)
-                print(f"   [!] Resfriando a API por {tempo_descanso}s...")
-                res= executar_agente(mensagem, thinking_level="medium")
-
-                resultado_acumulado += f"\n\n## Info Adicional ({item}): \n{res.stdout}"
+            #lacunas= extrair_perguntas(resultado_acumulado, ticker)
+            #for item in lacunas:
+            #    print(f"Mensagem sobre {item}\n")
+            #    mensagem= (
+            #    f"Busque DADOS NUMÉRICOS REAIS e ATUALIZADOS sobre {item} do ativo {ticker}. "
+            #    "Não responda com generalidades. Se for P/L, traga o número. Se for notícia, traga a data e o fato."
+            #    )
 
     time.sleep(tempo_descanso)
-    print(f"   [!] Resfriando a API por {tempo_descanso}s...")
-    relatorio_final= auditor_relatorio(resultado_acumulado, ticker)
+    print(f"   [!] Cooling API for {tempo_descanso}s...")
+    final_report= auditor_report(report, ticker)
 
-    return relatorio_final
+    return final_report
 
-if not os.path.exists("samples"):
-    os.makedirs("samples")
+def main():
+    wallet= ["AMER3","OIBR3"]
 
-arquivo_saida= "samples/analise_carteira.md"
-    
-with open(arquivo_saida, "w") as f:
-    pass
+    if not os.path.exists("samples"):
+        os.makedirs("samples")
 
-resumo_executivo = []
+    out_file= "samples/wallet_analysis.md"
+        
+    with open(out_file, "w") as f:
+        pass
 
-for ativo in carteira:
-    relatorio_final = pesquisar_ativo(ativo)
-    metricas = extrair_metricas(relatorio_final, ativo)
-    
-    resumo_executivo.append({"ativo": ativo, "info": metricas})
+    resume = []
 
-    with open(arquivo_saida, "a") as f:
-        f.write(f"## Análise Detalhada: {ativo}\n\n{relatorio_final}\n\n---\n\n")
+    for share in wallet:
+        final_report = agent_union(share)
+        metrics = extract_metrics(final_report, share)
+        
+        resume.append({"ativo": share, "info": metrics})
 
-print("   [!] Gerando Tabela Resumo...")
-with open(arquivo_saida, "r+") as f:
-    conteudo = f.read()
-    f.seek(0, 0)
-    f.write("# 📊 DASHBOARD DE INVESTIMENTOS - DRÝS CAPITAL\n\n")
-    f.write("## Relatório Consolidado de Análise Sintética\n\n")
-    f.write("| Ativo | Recomendação | Score | Risco |\n")
-    f.write("|-------|--------------|-------|-------|\n")
-    
-    for item in resumo_executivo:
-        partes = [p.strip() for p in item["info"].split("|")]
-        if len(partes) == 3:
-            rec, score, risco = partes
-            f.write(f"| {item['ativo']:<6} | {rec:<12} | {score:<5} | {risco:<7} |\n")
-    
-    f.write("\n\n" + conteudo) 
+        with open(out_file, "a") as f:
+            f.write(f"## Análise Detalhada: {share}\n\n{final_report}\n\n---\n\n")
+
+    print("   [!] Gerando Tabela Resumo...")
+    with open(out_file, "r+") as f:
+        conteudo = f.read()
+        f.seek(0, 0)
+        f.write("# 📊 DASHBOARD DE INVESTIMENTOS - DRÝS CAPITAL\n\n")
+        f.write("## Relatório Consolidado de Análise Sintética\n\n")
+        f.write("| Ativo | Recomendação | Score | Risco |\n")
+        f.write("|-------|--------------|-------|-------|\n")
+        
+        for item in resume:
+            partes = [p.strip() for p in item["info"].split("|")]
+            if len(partes) == 3:
+                rec, score, risco = partes
+                f.write(f"| {item['ativo']:<6} | {rec:<12} | {score:<5} | {risco:<7} |\n")
+        
+        f.write("\n\n" + conteudo) 
+
+
+if __name__ == "__main__":
+    main()
