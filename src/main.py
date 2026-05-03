@@ -3,6 +3,8 @@ import os
 import requests
 from dotenv import load_dotenv
 import yfinance as yf
+from fastapi import FastAPI
+
 
 load_dotenv()
 gateway_token= os.getenv("GATEWAY_TOKEN")
