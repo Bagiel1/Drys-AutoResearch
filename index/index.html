@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drýs Capital - Terminal</title>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body{
+            background:
+            radial-gradient(circle at top, rgba(0,188,212,0.12), transparent 35%),
+            linear-gradient(135deg, #020617, #0f172a);
+
+            color: #e2e8f0;
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .header-terminal{
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header-terminal h1{
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -2px;
+            background: linear-gradient(to right, #ffffff, #67e8f9);
+            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .header-terminal p{
+            margin-top: 10px;
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+
+        .search-box{
+            max-width: 700px;
+            margin: 0 auto 35px auto;
+
+            background: rgba(15,23,42,0.65);
+            backdrop-filter: blur(12px);
+
+            border: 1px solid rgba(255,255,255,0.06);
+
+            padding: 18px;
+            border-radius: 22px;
+
+            display: flex;
+            gap: 14px;
+
+            box-shadow:
+            0 10px 40px rgba(0,0,0,0.35),
+            inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+
+        input{
+            flex: 1;
+
+            padding: 16px 18px;
+
+            border-radius: 14px;
+            border: 1px solid #334155;
+
+            background-color: #0f172a;
+            color: white;
+
+            font-size: 16px;
+            outline: none;
+
+            transition: 0.25s;
+        }
+
+        input:focus{
+            border-color: #00bcd4;
+            box-shadow: 0 0 0 4px rgba(0,188,212,0.15);
+        }
+
+        input::placeholder{
+            color: #64748b;
+        }
+
+        button{
+            padding: 16px 28px;
+
+            border-radius: 14px;
+            border: none;
+
+            background: linear-gradient(135deg, #00bcd4, #06b6d4);
+
+            color: #001018;
+            font-weight: 800;
+            font-size: 15px;
+
+            cursor: pointer;
+
+            transition: 0.25s;
+
+            box-shadow:
+            0 10px 25px rgba(0,188,212,0.25);
+        }
+
+        button:hover{
+            transform: translateY(-2px) scale(1.02);
+            box-shadow:
+            0 15px 35px rgba(0,188,212,0.35);
+        }
+
+        #telaResultado{
+            max-width: 1250px;
+            margin: 0 auto;
+        }
+
+        .loading{
+            text-align: center;
+            padding: 30px;
+
+            color: #67e8f9;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .bento-dashboard{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 22px;
+        }
+
+        .card{
+            position: relative;
+
+            background:
+            linear-gradient(
+                145deg,
+                rgba(30,41,59,0.92),
+                rgba(15,23,42,0.92)
+            );
+
+            border: 1px solid rgba(255,255,255,0.05);
+
+            padding: 28px;
+            border-radius: 24px;
+
+            overflow: hidden;
+
+            box-shadow:
+            0 15px 35px rgba(0,0,0,0.35);
+
+            transition: 0.3s;
+        }
+
+        .card::before{
+            content: "";
+
+            position: absolute;
+            inset: 0;
+
+            background:
+            linear-gradient(
+                120deg,
+                transparent,
+                rgba(255,255,255,0.02),
+                transparent
+            );
+
+            pointer-events: none;
+        }
+
+        .card:hover{
+            transform: translateY(-6px);
+            border-color: rgba(0,188,212,0.25);
+        }
+
+        .card h2,
+        .card h3{
+            margin-bottom: 18px;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        .card p{
+            color: #cbd5e1;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .card-destaque{
+            grid-column: 1 / -1;
+
+            background:
+            linear-gradient(
+                135deg,
+                rgba(0,188,212,0.14),
+                rgba(15,23,42,0.95)
+            );
+
+            border: 1px solid rgba(0,188,212,0.18);
+        }
+
+        .card-destaque h2{
+            font-size: 2rem;
+            text-transform: uppercase;
+        }
+
+        .card-veredito{
+            border: 1px solid rgba(0,255,136,0.2);
+
+            background:
+            linear-gradient(
+                135deg,
+                rgba(0,255,136,0.08),
+                rgba(15,23,42,0.95)
+            );
+        }
+
+        .metric{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 14px 0;
+
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .metric:last-child{
+            border-bottom: none;
+        }
+
+        .metric span{
+            color: #94a3b8;
+        }
+
+        .metric strong{
+            color: #67e8f9;
+            font-size: 1.1rem;
+        }
+
+        @media(max-width: 768px){
+
+            .header-terminal h1{
+                font-size: 2.2rem;
+            }
+
+            .search-box{
+                flex-direction: column;
+            }
+
+            button{
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header-terminal">
+        <h1>Drýs Capital</h1>
+        <p>Terminal Inteligente de Análise Institucional</p>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="inputTicker" placeholder="Ex: WEGE3, PETR4">
+        <button onclick="chamarIA()">Gerar Dossiê</button>
+    </div>
+
+    <div id="telaResultado"></div>
+
+    <script>
+
+        async function chamarIA(){
+
+            const tickerDigitado = document.getElementById('inputTicker').value;
+            const tela = document.getElementById('telaResultado');
+
+            tela.innerHTML = `
+                <div class="loading">
+                    ⚡ Acordando agentes da Drýs Capital...
+                </div>
+            `;
+
+            try{
+
+                const resposta = await fetch(`http://127.0.0.1:8000/analise/${tickerDigitado}`);
+                const dados = await resposta.json();
+
+                tela.innerHTML = `
+                <div class="bento-dashboard">
+
+                    <div class="card card-destaque">
+                        <h2>${dados.ativo}</h2>
+                        <p>${dados.analise_geral}</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>📰 Principais Notícias</h3>
+                        <p>${dados.noticias}</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>📊 Dados Factuais</h3>
+
+                        <div class="metric">
+                            <span>P/L</span>
+                            <strong>${dados.pl}</strong>
+                        </div>
+
+                        <div class="metric">
+                            <span>ROE</span>
+                            <strong>${dados.roe}</strong>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>⚠️ Análise de Riscos</h3>
+                        <p>${dados.analise_de_risco}</p>
+                        <p>Nivel de risco: ${dados.nivel_risco}
+                    </div>
+
+                    <div class="card card-veredito">
+                        <h3>✅ Veredito Final</h3>
+                        <p>${dados.veredito}</p>
+                        <p>Score do ativo: ${dados.score}</p>
+                    </div>
+
+                </div>
+                `;
+
+            }catch(erro){
+
+                tela.innerHTML = `
+                    <div class="card">
+                        <h3>❌ Erro</h3>
+                        <p>Não foi possível gerar o dossiê.</p>
+                    </div>
+                `;
+
+                console.error(erro);
+            }
+        }
+
+    </script>
+
+</body>
+</html>

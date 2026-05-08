@@ -9,7 +9,7 @@ from fastapi import FastAPI
 load_dotenv()
 gateway_token= os.getenv("GATEWAY_TOKEN")
 
-tempo_descanso= 2
+tempo_descanso= 0.5
 maximo= 2
 
 headers= {
@@ -26,6 +26,10 @@ def get_real_data(ticker):
 
         pl= info.get('trailingPE', 'N/A')
         roe= info.get('returnOnEquity', 'N/A')
+        dy= info.get('dividendYield', 'N/A')
+        pvp= info.get('priceToBook', 'N/A')
+        liqmarg= info.get('profitMargins', 'N/A')
+        alavac= info.get('debtToEquity', 'N/A')
 
         if isinstance(pl, float):
             pl= f"{pl:.2f}"
@@ -35,8 +39,26 @@ def get_real_data(ticker):
         else:
             roe_format= str(roe)
 
+        if isinstance(dy, float):
+            dy_format= f"{dy * 100:.2f}%"
+        else:
+            dy_format= str(dy)
+
+        if isinstance(pvp, float):
+            pvp_format= f"{pvp:.2f}"
+
+        if isinstance(liqmarg, float):
+            liqmarg_format= f"{liqmarg * 100:.2f}%"
+        else:
+            liqmarg_format= str(liqmarg)
+
+        if isinstance(alavac, float):
+            alavac_format= f"{alavac * 100:.2f}%"
+
+
         raw_data= f"OFICIAL DATA (YFINANCE) - P/L: {pl} | ROE: {roe_format}"
-        return raw_data
+        raw_dict= {"pl": pl, "roe": roe, "dy": dy, "pvp": pvp, "liqmarg": liqmarg, "alavac": alavac}
+        return raw_data, raw_dict
 
     except Exception as e:
         return f"OFICIAL DATA (YFINCANCE) - ERROR: {e}"
@@ -74,15 +96,30 @@ def auditor_report(report, ticker):
     )
     task = (
         f"Analise este relatorio de {ticker}: \n\n{report}\n\n"
-        "Sua tarefa: Reescreva o relatório organizando em tópicos claros (Markdown).\n"
+        "Sua tarefa: Transforme e reescreva este relatório EXCLUSIVAMENTE em um formato JSON válido.\n"
         "ATENÇÃO: Corrija todas as contradições. Se houver informações divergentes entre "
         "o texto original e a seção 'Adendo da Auditoria', os dados do Adendo são a "
-        "VERDADE ABSOLUTA e devem substituir os originais.\n"
-        "Não escreva a palavra 'Adendo' no texto final. Incorpore a correção naturalmente. "
-        "Adicione uma seção chamada 'ANÁLISE DE RISCOS'.\n\n"
-        "REGRA ABSOLUTA E INQUEBRÁVEL: A ÚLTIMA LINHA do seu texto DEVE ser "
-        "exclusivamente o veredito final no formato exato: '**Veredito: COMPRA**', '**Veredito: VENDA**' ou '**Veredito: MANTER**'. "
-        "Sem exceções."
+        "VERDADE ABSOLUTA e devem substituir os originais. Incorpore a correção naturalmente sem citar a palavra 'Adendo'.\n\n"
+        
+        "--- REGRAS DE FORMATAÇÃO E CONTEÚDO (LEIA COM ATENÇÃO) ---\n"
+        "1. 'analise_geral': Escreva o texto COMPLETO. PROIBIDO resumir. OBRIGATÓRIO: Use os caracteres exatos \\n\\n para separar os parágrafos.\n"
+        "2. 'noticias': Liste TODAS as notícias na íntegra. PROIBIDO resumir. OBRIGATÓRIO: Formate em tópicos. Inicie cada nova linha exata e unicamente com o caractere '- '.\n"
+        "3. 'analise_de_risco': Escreva a análise crítica COMPLETA. PROIBIDO resumir. OBRIGATÓRIO: Use os caracteres \\n\\n para separar os parágrafos.\n\n"
+        
+        "REGRA ABSOLUTA E INQUEBRÁVEL 1: Sua resposta não pode conter NENHUM texto antes ou depois do JSON. "
+        "NÃO USE os marcadores de código do Markdown (como ```json). A primeira letra da sua resposta DEVE ser '{' e a última '}'.\n\n"
+        
+        "REGRA ABSOLUTA E INQUEBRÁVEL 2: Você DEVE usar OBRIGATORIAMENTE a estrutura exata de chaves abaixo para montar o seu JSON. Não invente chaves novas:\n"
+        "{\n"
+        '  "analise_geral": "[Insira a análise geral aqui respeitando a regra 1]",\n'
+        '  "pl": "Insira o valor numérico exato do P/L ou N/A",\n'
+        '  "roe": "Insira a porcentagem exata do ROE ou N/A",\n'
+        '  "noticias": "[Insira os tópicos das notícias aqui respeitando a regra 2]",\n'
+        '  "analise_de_risco": "[Insira a análise de riscos aqui respeitando a regra 3]",\n'
+        '  "veredito": "EXATAMENTE UMA DAS TRÊS PALAVRAS: COMPRA, VENDA ou MANTER (em maiúsculo)",\n'
+        '  "nivel_risco": "Escreva apenas: Baixo, Medio ou Alto", \n'
+        '  "score": "Escreva apenas o numero de 0 a 10" \n'        
+        "}\n"
     )
 
     answer= exec_agent_api(
@@ -92,43 +129,6 @@ def auditor_report(report, ticker):
     )
 
     return answer
-
-
-def extract_metrics(report, ticker):
-    personality = (
-        "Você é um extrator de dados robótico. Você não inventa palavras."
-    )
-    task = (
-        f"Baseado no relatório abaixo, extraia apenas três informações: "
-        f"1. Recomendação (Compra, Venda ou Manter), "
-        f"2. Score de 0 a 10 (onde 0 é péssimo e 10 é excelente), "
-        f"3. Nível de Risco (Baixo, Médio, Alto). "
-        f"Retorne OBRIGATORIAMENTE no formato: Recomendação | Score | Risco. Exemplo: Compra | 8.5 | Médio\n\n"
-        f"Relatório: {report}\n\n"
-        f"Não escreva absolutamente nada a mais."
-    )
-    
-    metrics = exec_agent_api(user_prompt=task, agent="metrics", system_prompt=personality)
-    return metrics
-
-
-'''
-def extrair_perguntas(contexto, ticker):
-    
-    mensagem= (f"Analise o que já foi levantado sobre {ticker}: \n\n{contexto}\n\n"
-        "As pesquisas anteriores falharam em convencer o Juiz. "
-        "Identifique 2 detalhes MUITO ESPECÍFICOS e diferentes que ainda não foram respondidos com precisão. "
-        "Exemplo: Em vez de 'P/L', peça 'Relação Preço/Lucro projetada para o final de 2026 segundo o último balanço'."
-        "Retorne apenas os tópicos, um por linha.")
-    res= executar_agente(mensagem)
-
-    perguntas = []
-    for linha in res.stdout.split('\n'):
-        linha_limpa = linha.replace('-', '').replace('*', '').strip()
-        if linha_limpa:
-            perguntas.append(linha_limpa)
-    return perguntas[:3]
-'''
 
 def rescue_agent(report, ticker, reason, oficial_data):
     personality = (
@@ -192,9 +192,13 @@ def rapporteur(ticker):
         "fatores que possam prejudicar a segurança do investidor, e coisas positivas.\n"
         f"DADOS OFICIAIS ABSOLUTOS: {oficial_data}\n\n"
         "REGRA DE OURO PARA INDICADORES: Use os dados oficiais acima. "
-        "Se o P/L ou ROE oficial estiver como 'N/A', isso significa que a empresa dá prejuízo "
+        "Se o P/L ou ROE oficial estiver como 'N/A', isso significa que a empresa dá prejuízo."
         "ou o dado é matematicamente impossível. Nesse caso, NÃO tente procurar esse número na web. "
         "Escreva expressamente no seu texto que o P/L ou ROE é 'N/A' ou 'Inexistente'."
+        "OBRIGATÓRIO: Você DEVE usar a sua ferramenta de busca na internet (web search) para investigar a fundo o ativo {ticker}.\n"
+        "REGRA ANTI-PREGUIÇA: É ESTRITAMENTE PROIBIDO retornar páginas genéricas de cotação, homepages de portais (como StatusInvest, InfoMoney Cotações, Fundamentus) ou índices vazios.\n"
+        "Você deve buscar por EVENTOS REAIS e ESPECÍFICOS dos últimos 6 meses cruzando o nome da empresa com palavras como: 'lucro', 'prejuízo', 'polêmica', 'investigação', 'dívida' ou 'recuperação judicial'.\n"
+        "Para cada uma das 3 notícias encontradas, você deve processar a página e descrever no seu relatório: O QUE aconteceu de fato, QUANDO aconteceu, e QUAL O IMPACTO financeiro real para a empresa."
     )
 
     inicial_answer= exec_agent_api(user_prompt=task, agent="rapporteur", system_prompt=personality)
@@ -204,7 +208,7 @@ def rapporteur(ticker):
 
 def agent_union(ticker):
     report= rapporteur(ticker)
-    oficial_data= get_real_data(ticker)
+    oficial_data, oficial_data_dict= get_real_data(ticker)
     for i in range(maximo):
 
         print(f"   [!] Cooling API for {tempo_descanso}s...")
@@ -234,17 +238,11 @@ def agent_union(ticker):
 
             report= report + f"\n\n### Adendo da Auditoria:\n{answer_rescue}"
 
-            #lacunas= extrair_perguntas(resultado_acumulado, ticker)
-            #for item in lacunas:
-            #    print(f"Mensagem sobre {item}\n")
-            #    mensagem= (
-            #    f"Busque DADOS NUMÉRICOS REAIS e ATUALIZADOS sobre {item} do ativo {ticker}. "
-            #    "Não responda com generalidades. Se for P/L, traga o número. Se for notícia, traga a data e o fato."
-            #    )
-
     time.sleep(tempo_descanso)
     print(f"   [!] Cooling API for {tempo_descanso}s...")
     final_report= auditor_report(report, ticker)
+
+    final_report.update(oficial_data_dict)
 
     return final_report
 
@@ -254,7 +252,7 @@ def main():
     if not os.path.exists("samples"):
         os.makedirs("samples")
 
-    out_file= "samples/wallet_analysis.md"
+    out_file= "samples/wallet_analysis.json"
         
     with open(out_file, "w") as f:
         pass
@@ -263,9 +261,6 @@ def main():
 
     for share in wallet:
         final_report = agent_union(share)
-        metrics = extract_metrics(final_report, share)
-        
-        resume.append({"ativo": share, "info": metrics})
 
         with open(out_file, "a") as f:
             f.write(f"## Análise Detalhada: {share}\n\n{final_report}\n\n---\n\n")
